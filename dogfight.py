@@ -8,6 +8,8 @@ RED = 0
 BLUE = 1
 V = 200 #pix/s
 OMEGA = 180 #deg/s
+M_LIFE = 1 #missile life in s
+M_V = 1000 #px/s
 
 black = (0,0,0)
 
@@ -49,21 +51,22 @@ scr = pg.display.set_mode((1000,1000))
 scrrect = scr.get_rect()
 scr.fill(black)
 
-# Draw the rotated image at the center of the screen
-image_rect = redship[50].get_rect()
-scr.blit(redship[50], image_rect.topleft)
-
-# Update the display
-pg.display.flip()
-
 #Initialize time
 dt = 0.01
 t_start =  0.001 * pg.time.get_ticks()
 t_prev = t_start
 
+t_mis_r = 0
+t_mis_b = 0
+
 pos = np.array([[400, 500], [600, 500]]) #[x_red,y_red],[x_blue,y_blue]
-v = np.array([[-200, 0],[200, 0]])
+vx_r, vy_r, vx_b, vy_b = -200, 0, 200, 0
+v = np.array([[vx_r, vy_r],[vx_b, vy_b]])
 rot = np.array([180, 0]) #red, blue
+
+mis_coord = np.array([[0,0],[0,0]])
+mis_rot = np.array([0,0])
+v_mis = np.array([[0,0],[0,0]])
 
 running = True
 while running:
@@ -85,6 +88,7 @@ while running:
         pg.event.pump()
         keys = pg.key.get_pressed()
         
+        pg.draw.rect(scr,black,scrrect)
         if keys[pg.K_ESCAPE]:
             running = False
         if keys[pg.K_a]:
@@ -94,14 +98,37 @@ while running:
         if keys[pg.K_k]:
             rot[BLUE] += OMEGA * dt
         if keys[pg.K_SEMICOLON]:
-            rot[BLUE] -= OMEGA * dt 
-            
+            rot[BLUE] -= OMEGA * dt
+        if keys[pg.K_s]:
+            if t_mis_r > 1e-3:
+                False
+            else:
+                t_mis_r = 1
+                mis_coord[RED] = pos[RED]
+                mis_rot[RED] = rot[RED]
+                v_mis[RED] = np.array([M_V * math.cos(math.radians(-1 * mis_rot[RED])), M_V * math.sin(math.radians(-1 * mis_rot[RED]))])
+                print(v_mis[RED])
+                missile_red_rect = missile[int(mis_rot[RED])].get_rect()
+                          
+        if keys[pg.K_l]:
+            if t_mis_b > 1e-3:
+                False
+            else:
+                t_mis_b = 1
+        
+        if t_mis_r > 0:
+            mis_coord[RED] = mis_coord[RED] + v_mis[RED] * dt
+            missile_red_rect.center = mis_coord[RED]
+            scr.blit(missile[mis_rot[RED]], missile_red_rect)
+            t_mis_r -= dt
+
         rot[rot > 359] = 0
         rot[rot < 0] = 359
         
-        v = np.array([[V*math.cos(math.radians(-1 * rot[RED])), V*math.sin(math.radians(-1 * rot[RED]))],[V*math.cos(math.radians(-1 * rot[BLUE])), V*math.sin(math.radians(-1 * rot[BLUE]))]])
+        vx_r, vy_r, vx_b, vy_b = V*math.cos(math.radians(-1 * rot[RED])), V*math.sin(math.radians(-1 * rot[RED])),V*math.cos(math.radians(-1 * rot[BLUE])), V*math.sin(math.radians(-1 * rot[BLUE]))
         
-        pg.draw.rect(scr,black,scrrect)
+        v = np.array([[vx_r, vy_r],[vx_b, vy_b]])
+        
         scr.blit(redship[rot[RED]], red_rect)
         scr.blit(blueship[rot[BLUE]], blue_rect)
         
