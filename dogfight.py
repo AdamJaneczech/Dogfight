@@ -156,7 +156,7 @@ while running:
             if math.sqrt(np.sum(np.square(dist[BLUE]))) < 50: #some distance, found by trial-and-error
                 score[BLUE] = score[BLUE] + 1
                 print("Blue scores!")
-                boom(mis_coord[BLUE], pos[BLUE])
+                boom(mis_coord[BLUE], pos[RED])
                 t_mis_b = 0
                 hit = True
 
