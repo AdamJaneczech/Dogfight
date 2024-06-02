@@ -101,7 +101,7 @@ while running:
             rot[BLUE] -= OMEGA * dt
         if keys[pg.K_s]:
             if t_mis_r > 1e-3:
-                False
+                False #dummy command
             else:
                 t_mis_r = 1
                 mis_coord[RED] = pos[RED]
@@ -112,15 +112,26 @@ while running:
                           
         if keys[pg.K_l]:
             if t_mis_b > 1e-3:
-                False
+                False #dummy command
             else:
                 t_mis_b = 1
+                mis_coord[BLUE] = pos[BLUE]
+                mis_rot[BLUE] = rot[BLUE]
+                v_mis[BLUE] = np.array([M_V * math.cos(math.radians(-1 * mis_rot[BLUE])), M_V * math.sin(math.radians(-1 * mis_rot[BLUE]))])
+                print(v_mis[BLUE])
+                missile_red_rect = missile[int(mis_rot[BLUE])].get_rect()
         
         if t_mis_r > 0:
             mis_coord[RED] = mis_coord[RED] + v_mis[RED] * dt
             missile_red_rect.center = mis_coord[RED]
             scr.blit(missile[mis_rot[RED]], missile_red_rect)
             t_mis_r -= dt
+
+        if t_mis_b > 0:
+            mis_coord[BLUE] = mis_coord[BLUE] + v_mis[BLUE] * dt
+            missile_red_rect.center = mis_coord[BLUE]
+            scr.blit(missile[mis_rot[BLUE]], missile_red_rect)
+            t_mis_b -= dt
 
         rot[rot > 359] = 0
         rot[rot < 0] = 359
