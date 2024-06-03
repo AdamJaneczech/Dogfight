@@ -134,6 +134,16 @@ while running:
                 v_mis[BLUE] = np.array([M_V * math.cos(math.radians(-1 * mis_rot[BLUE])), M_V * math.sin(math.radians(-1 * mis_rot[BLUE]))])
                 missile_red_rect = missile[int(mis_rot[BLUE])].get_rect()
         
+        rot[rot > 359] = 0
+        rot[rot < 0] = 359
+        
+        vx_r, vy_r, vx_b, vy_b = V * math.cos(math.radians(-1 * rot[RED])), V*math.sin(math.radians(-1 * rot[RED])),V*math.cos(math.radians(-1 * rot[BLUE])), V*math.sin(math.radians(-1 * rot[BLUE]))
+        
+        v = np.array([[vx_r, vy_r],[vx_b, vy_b]])
+        
+        scr.blit(redship[rot[RED]], red_rect)
+        scr.blit(blueship[rot[BLUE]], blue_rect)
+
         if t_mis_r > 0:
             mis_coord[RED] = mis_coord[RED] + v_mis[RED] * dt
             missile_red_rect.center = mis_coord[RED]
@@ -160,15 +170,6 @@ while running:
                 t_mis_b = 0
                 hit = True
 
-        rot[rot > 359] = 0
-        rot[rot < 0] = 359
-        
-        vx_r, vy_r, vx_b, vy_b = V * math.cos(math.radians(-1 * rot[RED])), V*math.sin(math.radians(-1 * rot[RED])),V*math.cos(math.radians(-1 * rot[BLUE])), V*math.sin(math.radians(-1 * rot[BLUE]))
-        
-        v = np.array([[vx_r, vy_r],[vx_b, vy_b]])
-        
-        scr.blit(redship[rot[RED]], red_rect)
-        scr.blit(blueship[rot[BLUE]], blue_rect)
         pg.display.flip()
         if(hit):
             hit = False
